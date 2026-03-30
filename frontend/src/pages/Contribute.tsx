@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Card, Form, Input, Select, Button, message, Alert } from 'antd'
-import { SendOutlined } from '@ant-design/icons'
-import { contributionApi } from '../services/api'
-import type { CharacterDetail } from '../types'
+import { Card, Form, Input, Select, Button, message, Alert, Upload } from 'antd'
+import { SendOutlined, UploadOutlined } from '@ant-design/icons'
+import axios from 'axios'
 
 const { TextArea } = Input
 
@@ -19,11 +18,14 @@ export default function Contribute() {
   const location = useLocation()
   const [form] = Form.useForm()
   const [contributeType, setContributeType] = useState<'新增角色' | '补充数据'>('新增角色')
-  const [selectedCharacter, setSelectedCharacter] = useState<CharacterDetail | null>(null)
+  const [selectedCharacter, setSelectedCharacter] = useState<any>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [imageUrl, setImageUrl] = useState<string>('')
+  const uploadRef = useRef<any>(null)
 
   useEffect(() => {
-    const state = location.state as { character?: CharacterDetail } | null
+    const state = location.state as { character?: any } | null
     if (state?.character) {
       setSelectedCharacter(state.character)
       setContributeType('补充数据')
@@ -42,49 +44,77 @@ export default function Contribute() {
     } else {
       form.resetFields(['content'])
     }
+    setImageUrl('')
+    if (uploadRef.current) {
+      uploadRef.current.fileList = []
+    }
+  }
+
+  const handleImageChange = (info: any) => {
+    if (info.file.status === 'uploading') {
+      setUploading(true)
+    }
+    if (info.file.status === 'done') {
+      const url = info.file.response?.data?.imageUrl
+      if (url) {
+        setImageUrl(url)
+        message.success('图片上传成功')
+      }
+      setUploading(false)
+    }
+    if (info.file.status === 'error') {
+      message.error('图片上传失败')
+      setUploading(false)
+    }
   }
 
   const handleSubmit = async (values: any) => {
     setSubmitting(true)
     try {
-      if (contributeType === '新增角色') {
-        await contributionApi.submit({
-          type: '新增角色',
-          data: {
-            name: values.name,
-            category: values.category,
-            summary: values.summary,
-            story: values.story,
-            scripture: values.scripture,
-            sanskritName: values.sanskritName,
-            otherNames: values.otherNames,
-            imageUrl: values.imageUrl,
-          },
-          submitterName: values.submitterName,
-          submitterEmail: values.submitterEmail,
-        })
-      } else {
-        await contributionApi.submit({
-          type: '补充数据',
-          data: {
-            characterId: selectedCharacter?.id,
-            content: values.content,
-            imageUrl: values.imageUrl,
-          },
-          submitterName: values.submitterName,
-          submitterEmail: values.submitterEmail,
-        })
+      const data: any = {
+        name: values.name,
+        category: values.category,
+        summary: values.summary,
+        story: values.story,
+        scripture: values.scripture,
+        sanskritName: values.sanskritName,
+        otherNames: values.otherNames,
+        submitterName: values.submitterName,
+        submitterEmail: values.submitterEmail,
       }
+
+      if (contributeType === '新增角色') {
+        data.type = '新增角色'
+        data.imageUrl = imageUrl
+      } else {
+        data.type = '补充数据'
+        data.characterId = selectedCharacter?.id
+        data.content = values.content
+        data.imageUrl = imageUrl
+      }
+
+      await axios.post('/api/contributions', data)
       message.success('提交成功！感谢您的贡献，审核通过后将显示在网站上。')
       form.resetFields()
       setSelectedCharacter(null)
       setContributeType('新增角色')
+      setImageUrl('')
+      if (uploadRef.current) {
+        uploadRef.current.fileList = []
+      }
     } catch (err: any) {
-      message.error(err.message || '提交失败，请重试')
+      message.error(err.response?.data?.error?.message || err.message || '提交失败，请重试')
     } finally {
       setSubmitting(false)
     }
   }
+
+  const uploadButton = (
+    <div>
+      <UploadOutlined rev={undefined} />
+      <div style={{ marginTop: 8 }}>上传图片</div>
+    </div>
+  )
 
   return (
     <div className="page-container" style={{ maxWidth: 800 }}>
@@ -168,7 +198,7 @@ export default function Contribute() {
                 label="典故故事"
                 name="story"
               >
-                <TextArea rows={6} placeholder="该角色的传说故事、历史典故" />
+                <TextArea rows={6} placeholder="该角色的传说故事，历史典故" />
               </Form.Item>
 
               <Form.Item
@@ -178,11 +208,34 @@ export default function Contribute() {
                 <Input placeholder="如：《妙法莲华经·观世音菩萨普门品》" />
               </Form.Item>
 
-              <Form.Item
-                label="图片URL（选填）"
-                name="imageUrl"
-              >
-                <Input placeholder="请输入图片网址，如：https://example.com/image.jpg" />
+              <Form.Item label="图片（选填）">
+                <Upload
+                  ref={uploadRef}
+                  name="image"
+                  listType="picture-card"
+                  className="avatar-uploader"
+                  showUploadList={true}
+                  customRequest={async (options) => {
+                    const formData = new FormData()
+                    formData.append('image', options.file)
+                    try {
+                      const res = await axios.post('/api/upload/image', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                      })
+                      options.onSuccess?.(res.data, options.file)
+                    } catch (err: any) {
+                      options.onError?.(err)
+                    }
+                  }}
+                  onChange={handleImageChange}
+                >
+                  {imageUrl ? null : uploadButton}
+                </Upload>
+                {imageUrl && (
+                  <div style={{ marginTop: 8, color: '#52c41a' }}>
+                    图片已上传
+                  </div>
+                )}
               </Form.Item>
             </>
           )}
@@ -197,11 +250,33 @@ export default function Contribute() {
                 <TextArea rows={6} placeholder="请详细描述您要补充或纠错的内容" />
               </Form.Item>
 
-              <Form.Item
-                label="图片URL（选填）"
-                name="imageUrl"
-              >
-                <Input placeholder="如发现图片错误或需要补充，请输入正确的图片网址" />
+              <Form.Item label="图片（选填）">
+                <Upload
+                  name="image"
+                  listType="picture-card"
+                  className="avatar-uploader"
+                  showUploadList={true}
+                  customRequest={async (options) => {
+                    const formData = new FormData()
+                    formData.append('image', options.file)
+                    try {
+                      const res = await axios.post('/api/upload/image', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                      })
+                      options.onSuccess?.(res.data, options.file)
+                    } catch (err: any) {
+                      options.onError?.(err)
+                    }
+                  }}
+                  onChange={handleImageChange}
+                >
+                  {imageUrl ? null : uploadButton}
+                </Upload>
+                {imageUrl && (
+                  <div style={{ marginTop: 8, color: '#52c41a' }}>
+                    图片已上传
+                  </div>
+                )}
               </Form.Item>
             </>
           )}
@@ -230,8 +305,8 @@ export default function Contribute() {
             <Button
               type="primary"
               htmlType="submit"
-              loading={submitting}
-              icon={<SendOutlined />}
+              loading={submitting || uploading}
+              icon={<SendOutlined rev={undefined} />}
               size="large"
               block
             >
