@@ -73,22 +73,48 @@ export default function Detail() {
           <Card
             style={{ marginBottom: 24 }}
             cover={
-              <div
-                style={{
-                  height: 200,
-                  background: `linear-gradient(135deg, ${categoryColors[character.category]}33 0%, ${categoryColors[character.category]}66 100%)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 80,
-                  color: categoryColors[character.category],
-                }}
-              >
-                {character.category === '佛' ? '佛' : 
-                 character.category === '菩萨' ? '萨' : 
-                 character.category === '罗汉' ? '罗汉' : 
-                 character.category === '护法' ? '护' : '其他'}
-              </div>
+              character.imageUrl ? (
+                <div
+                  style={{
+                    height: 300,
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: `linear-gradient(135deg, ${categoryColors[character.category]}33 0%, ${categoryColors[character.category]}66 100%)`,
+                  }}
+                >
+                  <img
+                    src={character.imageUrl}
+                    alt={character.name}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '300px',
+                      objectFit: 'contain',
+                    }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none'
+                    }}
+                  />
+                </div>
+              ) : (
+                <div
+                  style={{
+                    height: 200,
+                    background: `linear-gradient(135deg, ${categoryColors[character.category]}33 0%, ${categoryColors[character.category]}66 100%)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 80,
+                    color: categoryColors[character.category],
+                  }}
+                >
+                  {character.category === '佛' ? '佛' : 
+                   character.category === '菩萨' ? '萨' : 
+                   character.category === '罗汉' ? '罗汉' : 
+                   character.category === '护法' ? '护' : '其他'}
+                </div>
+              )
             }
           >
             <Card.Meta

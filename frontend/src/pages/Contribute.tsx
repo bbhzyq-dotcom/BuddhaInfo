@@ -58,6 +58,7 @@ export default function Contribute() {
             scripture: values.scripture,
             sanskritName: values.sanskritName,
             otherNames: values.otherNames,
+            imageUrl: values.imageUrl,
           },
           submitterName: values.submitterName,
           submitterEmail: values.submitterEmail,
@@ -68,6 +69,7 @@ export default function Contribute() {
           data: {
             characterId: selectedCharacter?.id,
             content: values.content,
+            imageUrl: values.imageUrl,
           },
           submitterName: values.submitterName,
           submitterEmail: values.submitterEmail,
@@ -175,17 +177,33 @@ export default function Contribute() {
               >
                 <Input placeholder="如：《妙法莲华经·观世音菩萨普门品》" />
               </Form.Item>
+
+              <Form.Item
+                label="图片URL（选填）"
+                name="imageUrl"
+              >
+                <Input placeholder="请输入图片网址，如：https://example.com/image.jpg" />
+              </Form.Item>
             </>
           )}
 
           {contributeType === '补充数据' && (
-            <Form.Item
-              label="补充内容"
-              name="content"
-              rules={[{ required: true, message: '请输入补充内容' }]}
-            >
-              <TextArea rows={6} placeholder="请详细描述您要补充或纠错的内容" />
-            </Form.Item>
+            <>
+              <Form.Item
+                label="补充内容"
+                name="content"
+                rules={[{ required: true, message: '请输入补充内容' }]}
+              >
+                <TextArea rows={6} placeholder="请详细描述您要补充或纠错的内容" />
+              </Form.Item>
+
+              <Form.Item
+                label="图片URL（选填）"
+                name="imageUrl"
+              >
+                <Input placeholder="如发现图片错误或需要补充，请输入正确的图片网址" />
+              </Form.Item>
+            </>
           )}
 
           <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 24, marginTop: 24 }}>
