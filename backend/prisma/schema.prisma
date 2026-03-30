@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Character {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  sanskritName String?
+  otherNames   String?
+  category     String
+  summary      String
+  story        String?
+  scripture    String?
+  imageUrl     String?
+  isHot        Boolean        @default(false)
+  status       String         @default("approved")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  contributions Contribution[]
+}
+
+model Contribution {
+  id             Int       @id @default(autoincrement())
+  characterId    Int?
+  type           String
+  data           String
+  status         String    @default("pending")
+  submitterName  String
+  submitterEmail String?
+  reviewNote     String?
+  createdAt      DateTime  @default(now())
+  reviewedAt     DateTime?
+  character      Character? @relation(fields: [characterId], references: [id])
+}
