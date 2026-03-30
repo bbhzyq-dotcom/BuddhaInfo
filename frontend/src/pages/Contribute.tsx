@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { Card, Form, Input, Select, Button, message, Alert } from 'antd'
 import { SendOutlined } from '@ant-design/icons'
 import { contributionApi } from '../services/api'
@@ -17,7 +17,6 @@ const categoryOptions = [
 
 export default function Contribute() {
   const location = useLocation()
-  const navigate = useNavigate()
   const [form] = Form.useForm()
   const [contributeType, setContributeType] = useState<'新增角色' | '补充数据'>('新增角色')
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterDetail | null>(null)

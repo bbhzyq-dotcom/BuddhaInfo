@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Row, Col, Spin, Alert, Select, Pagination } from 'antd'
 import { characterApi } from '../services/api'
-import type { Character, Category } from '../types'
+import type { Character } from '../types'
 import CharacterCard from '../components/CharacterCard'
 
 const categoryOptions = [
@@ -20,7 +20,6 @@ export default function Browse() {
   const category = searchParams.get('category') || ''
 
   const [characters, setCharacters] = useState<Character[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [page, setPage] = useState(1)
@@ -38,10 +37,6 @@ export default function Browse() {
       .catch(err => setError(err.message))
       .finally(() => setLoading(false))
   }, [category, page, pageSize])
-
-  useEffect(() => {
-    characterApi.categories().then(setCategories).catch(console.error)
-  }, [])
 
   const handleCategoryChange = (value: string) => {
     setSearchParams(value ? { category: value } : {})

@@ -37,23 +37,21 @@ export default function CharacterCard({ character, onClick }: CharacterCardProps
         </div>
       }
     >
-      <Card.Body>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span className="character-name">{character.name}</span>
-          <Tag color={categoryColors[character.category]} style={{ margin: 0 }}>
-            {character.category}
-          </Tag>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <span className="character-name">{character.name}</span>
+        <Tag color={categoryColors[character.category]} style={{ margin: 0 }}>
+          {character.category}
+        </Tag>
+      </div>
+      {character.sanskritName && (
+        <div className="character-sanskrit">{character.sanskritName}</div>
+      )}
+      {character.otherNames && character.otherNames.length > 0 && (
+        <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
+          别名：{character.otherNames.slice(0, 3).join('、')}
         </div>
-        {character.sanskritName && (
-          <div className="character-sanskrit">{character.sanskritName}</div>
-        )}
-        {character.otherNames && character.otherNames.length > 0 && (
-          <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
-            别名：{character.otherNames.slice(0, 3).join('、')}
-          </div>
-        )}
-        <p className="character-summary">{character.summary}</p>
-      </Card.Body>
+      )}
+      <p className="character-summary">{character.summary}</p>
     </Card>
   )
 }

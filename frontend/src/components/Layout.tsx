@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
-import { Layout as AntLayout, Menu, Input, Button, Space } from 'antd'
-import { SearchOutlined, HomeOutlined, BrowseOutlined, PlusOutlined } from '@ant-design/icons'
+import { Layout as AntLayout, Menu, Input, Space } from 'antd'
+import { SearchOutlined, HomeOutlined, AppstoreOutlined, PlusOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
 const { Header, Content, Footer } = AntLayout
@@ -18,7 +18,7 @@ export default function Layout() {
 
   const menuItems = [
     { key: 'home', icon: <HomeOutlined />, label: <Link to="/">首页</Link> },
-    { key: 'browse', icon: <BrowseOutlined />, label: <Link to="/browse">浏览</Link> },
+    { key: 'browse', icon: <AppstoreOutlined />, label: <Link to="/browse">浏览</Link> },
     { key: 'contribute', icon: <PlusOutlined />, label: <Link to="/contribute">贡献</Link> },
   ]
 
